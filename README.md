@@ -119,6 +119,7 @@ SQL> select * from test_ahosan;
 That's it! We've successfully set up and performed Oracle 19c Database Flashback operations. 
 Remember to adapt the settings and timestamps as needed for your specific use case.
 
+Medium: https://medium.com/@ahosanhabib.974/oracle-19c-database-flashback-460e817a5546
 
 Thanks from 
 ### Ahosan
