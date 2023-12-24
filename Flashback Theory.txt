@@ -1,0 +1,36 @@
+In Oracle Database 19c, you have access to several flashback features for database recovery and data 
+retrieval. These features allow you to view and recover data as it existed at a previous point in time. 
+Here are the main flashback features available in Oracle Database 19c:
+
+1. Flashback Query:
+   - Flashback Query allows you to query a table as it appeared at a specific point in time in the past. 
+   This is useful for retrieving historical data without having to perform a full database recovery.
+
+2. Flashback Version Query:
+   - Flashback Version Query enables you to view all versions of a row within a specified time interval, 
+   showing changes made to the data over time.
+
+3. Flashback Transaction Query:
+   - Flashback Transaction Query allows you to view all changes made by a specific transaction, including 
+   both committed and uncommitted changes, within a specified time interval.
+
+4. Flashback Table:
+   - Flashback Table lets you quickly revert a table to a previous state by using a single SQL statement. 
+   This operation is useful for recovering from accidental data changes.
+
+5. Flashback Drop:
+   - Flashback Drop allows you to recover tables that have been dropped (i.e., deleted) from the database 
+   within a specified retention period.
+
+6. Flashback Database:
+   - Flashback Database is a feature that enables you to flash back an entire Oracle database to a specific 
+   point in time, making it suitable for database-wide recovery.
+
+7. Flashback Data Archive:
+   - Flashback Data Archive (also known as Oracle Total Recall) allows you to maintain a historical record 
+   of changes to a table over time, providing a comprehensive audit trail.
+
+These flashback features provide a range of options for data recovery, historical data analysis, and 
+auditing within Oracle Database 19c, making it easier to manage and maintain data integrity 
+and recoverability.
+
