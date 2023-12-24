@@ -1,0 +1,109 @@
+#################### Database Flushback 19c by Ahosan Habib ####################
+## take a backup before do any things
+[oracle@test]$ scp oracle@10.10.0.10:/u01/Backup/* /u02/Backup/
+
+#############################
+# Enable Database Flashback #
+#############################
+## check recovery area for Flashback log
+[oracle@test]$ sqlplus / as sysdba
+SQL> SHOW RECYCLEBIN;
+SQL> show parameter db_recovery_file_dest;
+
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+db_recovery_file_dest                string
+db_recovery_file_dest_size           big integer 0
+SQL>
+
+## create dest for recovery area
+[oracle@test]$ mkdir /db_backup/db_recovery_file_dest
+
+SQL> alter system set db_recovery_file_dest='/db_backup/db_recovery_file_dest' SCOPE=spfile;
+SQL> alter system set db_recovery_file_dest_size=10G SCOPE=spfile;
+
+-- need to check undo retention also
+SQL> SELECT TO_NUMBER(VALUE) / 60 AS "Undo Retention (minutes)"
+FROM V$PARAMETER
+WHERE NAME = 'undo_retention';
+-- set for 3 days
+SQL> ALTER SYSTEM SET undo_retention = 259200 SCOPE=BOTH;
+
+-- 1440*3=4320 
+-- 1 day by 1440 minutes, set flashback retention in minutes
+SQL> alter system set db_flashback_retention_target=4320;
+
+-- enable flashback
+SQL> select flashback_on from v$database;
+SQL> shutdown immediate;
+SQL> startup mount;
+SQL> alter database flashback on;
+SQL> alter database open;
+SQL> select flashback_on from v$database;
+FLASHBACK_ON
+------------------
+YES
+
+
+#################################
+# FLASHBACK by TIMESTAMP or SCN #
+#################################
+SQL> SELECT current_scn, SYSTIMESTAMP FROM v$database;
+CURRENT_SCN     SYSTIMESTAMP
+------------    ------------
+  209817435     23-DEC-23 04.15.40.654845 PM +06:00
+
+-- insert test data
+SQL> create user flash_usr identified by flash_usr;
+SQL> grant connect, resource to flash_usr;
+SQL> GRANT UNLIMITED TABLESPACE TO flash_usr;
+SQL> ALTER USER flash_usr QUOTA UNLIMITED ON users;
+SQL> conn flash_usr/flash_usr;
+SQL> create table test_ahosan (
+  id number(10) Primary key
+);
+SQL> insert into test_ahosan (id) values (1);
+SQL> select * from test_ahosan;
+
+## Assume that the user created by mistake and want to flashback database to the SCN just before 
+the data insertion. Shutdown DB and startup mount
+
+-- check and down DB
+SQL> SELECT oldest_FLASHBACK_scn, oldest_FLASHBACK_time from v$flashback_database_log;
+
+SQL> shut immediate;
+SQL> startup mount;
+
+## We can flashback database to particular timestamp too
+SQL> FLASHBACK DATABASE TO TIMESTAMP
+TO_TIMESTAMP('2023-12-23 04:15:40', 'YYYY-MM-DD HH:MI:SS');
+SQL> Alter database open read only;
+SQL> select open_mode from v$database;
+-- check the expected changes
+SQL> conn flash_usr/flash_usr;
+SQL> select * from test_ahosan;
+SQL> exit
+-- table invalid
+-- then
+SQL> shu immediate
+SQL> startup mount
+SQL> Alter database open resetlogs;
+SQL> conn flash_usr/flash_usr;
+SQL> select * from test_ahosan;
+
+## Flashback database to SCN before user creation and open database with resetlogs
+SQL> Flashback database to scn 209817435;
+SQL> Alter database open read only;
+SQL> select open_mode from v$database;
+-- check the expected changes
+SQL> conn flash_usr/flash_usr;
+SQL> select * from test_ahosan;
+SQL> exit
+-- table invalid
+-- then
+SQL> shu immediate
+SQL> startup mount
+SQL> Alter database open resetlogs;
+SQL> conn flash_usr/flash_usr;
+SQL> select * from test_ahosan;
+
