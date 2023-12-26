@@ -30,8 +30,8 @@ SQL> SELECT TO_NUMBER(VALUE) / 60 AS "Undo Retention (minutes)"
 FROM V$PARAMETER
 WHERE NAME = 'undo_retention';
 
--- Set undo retention (e.g., 259,200 seconds for 3 days)
-SQL> ALTER SYSTEM SET undo_retention = 259200 SCOPE=BOTH;
+-- Set undo retention (e.g., 3600 seconds for 1 hour)
+SQL> ALTER SYSTEM SET undo_retention = 3600 SCOPE=BOTH;
 ```
 **Note**: To better accommodate Oracle Flashback features, you can either set the UNDO_RETENTION parameter to a value 
 equal to the longest expected Oracle Flashback operation
