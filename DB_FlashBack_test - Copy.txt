@@ -26,8 +26,8 @@ SQL> alter system set db_recovery_file_dest_size=10G SCOPE=spfile;
 SQL> SELECT TO_NUMBER(VALUE) / 60 AS "Undo Retention (minutes)"
 FROM V$PARAMETER
 WHERE NAME = 'undo_retention';
--- set for 3 days
-SQL> ALTER SYSTEM SET undo_retention = 259200 SCOPE=BOTH;
+-- set for 1 hour
+SQL> ALTER SYSTEM SET undo_retention = 3600 SCOPE=BOTH;
 
 -- 1440*3=4320 
 -- 1 day by 1440 minutes, set flashback retention in minutes
